@@ -1,116 +1,65 @@
-# RAG Pipeline with Local LLM and Milvus
+# 🚀 Modular RAG Pipeline with Milvus & LM Studio
+## 📝 Overview
+This project implements a complete, modular Retrieval-Augmented Generation (RAG) pipeline in Python. It is designed to answer user queries based on a custom knowledge base of documents by leveraging a local Large Language Model (LLM). The system uses Zilliz Cloud (a managed Milvus service) for efficient, scalable vector search and integrates with any LLM served through LM Studio.
 
-This project implements a Retrieval-Augmented Generation (RAG) pipeline that uses a local Large Language Model (LLM) hosted with LM Studio and a Milvus vector database for efficient document retrieval. The pipeline can process PDF and TXT documents, answer questions about their content, and is designed for easy setup and use.
+## ✨ Key Features
+`🧱 Modular Architecture`: The codebase is organized into distinct, single-responsibility modules, making it easy to maintain, extend, and debug.
 
-## Table of Contents
+`📄 Multi-Format Document Support`: Ingest and process information from multiple file types, including .pdf and .txt documents.
 
-- [Features](#features)
-- [Project Structure](#project-structure)
-- [How It Works](#how-it-works)
-- [Getting Started](#getting-started)
-  - [Prerequisites](#prerequisites)
-  - [Installation](#installation)
-- [Usage](#usage)
-- [Configuration](#configuration)
+`🔍 Scalable Vector Search`: Utilizes Zilliz Cloud for robust and high-performance similarity searches using an HNSW index.
 
-## Features
+`💻 Local LLM Integration`: Connects seamlessly with any local LLM served via LM Studio, ensuring data privacy and cost-free generation.
 
-- **Local LLM Integration**: Connects to a local LLM (e.g., Llama) served via [LM Studio](https://lmstudio.ai/).
-- **Vector-Based Retrieval**: Uses [Milvus](https://milvus.io/) (or Zilliz Cloud) for storing and searching document embeddings.
-- **Multi-Format Document Support**: Ingests both `.pdf` and `.txt` files.
-- **Automatic Re-ingestion**: Automatically re-processes and updates the vector database with the latest document versions on startup.
-- **Easy to Use**: Simple command-line interface for asking questions.
+`⚡ Efficient Data Ingestion`: Implements batch processing and a tqdm progress bar for speedy and transparent ingestion of large document sets.
 
-## Project Structure
+`🧩 Robust Document Chunking`: Employs a character-based splitting strategy to handle large documents and avoid database field limits.
 
-```
-.
-├── .env
-├── .gitignore
-├── config.py
-├── document_loader.py
-├── embedding.py
-├── generator.py
-├── ingestion.py
-├── main.py
-├── milvus_client.py
-├── retriever.py
-└── Documents/
-    └── your_document.pdf
-```
+`⌨️ Interactive CLI`: Provides a user-friendly command-line interface for asking questions and receiving answers.
 
-- **`main.py`**: The main script that orchestrates the entire RAG pipeline.
-- **`config.py`**: Manages all configurations, loading sensitive data from a `.env` file.
-- **`document_loader.py`**: Loads and splits documents from the `Documents` directory into manageable chunks.
-- **`embedding.py`**: Handles the loading of the sentence-embedding model.
-- **`ingestion.py`**: Manages the process of embedding document chunks and storing them in Milvus.
-- **`milvus_client.py`**: A client for interacting with the Milvus vector database.
-- **`retriever.py`**: Searches the Milvus database to find documents relevant to a user's query.
-- **`generator.py`**: Generates a final answer using the local LLM and the retrieved documents.
-- **`Documents/`**: The directory where you should place your `.pdf` and `.txt` files.
+## 🛠️ Technology Stack
+`Orchestration`: Python 🐍
 
-## How It Works
+`Vector Database`: Milvus (via Zilliz Cloud) ☁️
 
-1.  **Document Loading & Chunking**: The pipeline reads all `.pdf` and `.txt` files from the `Documents` directory, extracts the text, and splits it into smaller, overlapping chunks.
-2.  **Embedding & Ingestion**: Each chunk is converted into a vector embedding using a sentence-transformer model. These embeddings are then stored in a Milvus collection for fast similarity searches.
-3.  **Retrieval**: When you ask a question, your query is also converted into an embedding. The retriever then searches the Milvus database to find the document chunks with the most similar embeddings.
-4.  **Generation**: The retrieved chunks (the "context") and your original query are passed to the local LLM, which generates a final, context-aware answer.
+`LLM Serving`: LM Studio 🧠
 
-## Getting Started
+`Embedding Model`: Sentence-Transformers
 
-### Prerequisites
+## Core Libraries:
 
-- Python 3.7+
-- [LM Studio](https://lmstudio.ai/) installed and running with a downloaded model.
-- A running [Milvus](https://milvus.io/docs/install_standalone-docker.md) instance (or a [Zilliz Cloud](https://zilliz.com/cloud) account).
+`pymilvus`: For database interaction.
 
-### Installation
+`sentence-transformers`: For vector embeddings.
 
-1.  **Clone the repository:**
-    ```bash
-    git clone <repository-url>
-    cd <repository-directory>
-    ```
+`openai`: For API communication with LM Studio.
 
-2.  **Install the required Python packages:**
-    ```bash
-    pip install -r requirements.txt
-    ```
-    *(Note: A `requirements.txt` file is not provided in the current project structure, but it would be the standard way to manage dependencies.)*
+`PyMuPDF`: For PDF text extraction.
 
-3.  **Set up your environment variables:**
-    Create a `.env` file in the root of the project and add the following, replacing the placeholder values with your own:
+`tqdm`: For progress bars.
 
-    ```env
-    # --- Zilliz Cloud (Milvus) Configuration ---
-    ZILLIZ_URI="YOUR_ZILLIZ_CLOUD_URI"
-    ZILLIZ_TOKEN="YOUR_ZILLIZ_CLOUD_TOKEN"
-    COLLECTION_NAME="my_documents"
-    EMBEDDING_DIM=768 # Dimension of the embedding model (e.g., 768 for all-mpnet-base-v2)
+`python-dotenv`: For environment variable management.
 
-    # --- Embedding Model Configuration ---
-    EMBEDDING_MODEL='all-mpnet-base-v2'
+## ⚙️ How It Works
+`📥 Load & Chunk`: The pipeline scans a documents directory, extracts text from all .pdf and .txt files, and splits the content into small, overlapping chunks.
 
-    # --- LM Studio Configuration ---
-    LM_STUDIO_BASE_URL="http://localhost:1234/v1"
-    ```
+`✒️ Embed & Ingest`: Each text chunk is converted into a vector embedding. These embeddings are then inserted in batches into the Milvus collection on Zilliz Cloud.
 
-## Usage
+`🔎 Query & Retrieve`: A user's query is converted into an embedding and used to search Milvus for the most similar document chunks.
 
-1.  **Add your documents**: Place the `.pdf` and `.txt` files you want to query into the `Documents` directory.
+`🧠 Augment & Generate`: The retrieved text chunks are combined with the original query into a prompt, which is sent to the local LLM.
 
-2.  **Run the pipeline**:
-    ```bash
-    python main.py
-    ```
+`💬 Respond`: The LLM generates an answer based on the provided context, which is then displayed to the user.
 
-3.  **Ask questions**: Once the pipeline is running, you can enter your queries in the command line. Type `exit` to quit.
+## 🔧 Setup & Running
+For detailed setup and execution instructions, please refer to the main project documentation. The basic steps involve:
 
-## Configuration
+Starting Zilliz Cloud and LM Studio.
 
-You can customize the pipeline's behavior by editing the `config.py` file or the `.env` file:
+Setting up the Python environment and installing dependencies from requirements.txt.
 
-- **`COLLECTION_NAME`**: The name of the collection in Milvus where documents will be stored.
-- **`EMBEDDING_MODEL`**: The sentence-transformer model to use for embeddings.
-- **`LM_STUDIO_BASE_URL`**: The URL of your running LM Studio server.
-- **`DOCS_DIR`**: The directory where the pipeline looks for documents.
+Configuring your credentials in a .env file.
+
+Placing your .pdf and .txt files in the documents directory.
+
+Running the main script with python main.py.
