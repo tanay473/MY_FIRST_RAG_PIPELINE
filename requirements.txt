@@ -1,0 +1,6 @@
+pymilvus
+sentence-transformers
+openai
+PyMuPDF
+tqdm
+python-dotenv
